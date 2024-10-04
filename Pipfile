@@ -5,13 +5,11 @@ name = "pypi"
 
 [packages]
 django = "*"
-django-channels = "*"
-daphne = "*"
-channels = "*"
 psycopg2-binary = "*"
 dj-database-url = "*"
 python-dotenv = "*"
 gunicorn = "*"
+channels = {extras = ["daphne"], version = "*"}
 
 [dev-packages]
 
