@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from .models import *
+from django.views.decorators.csrf import csrf_exempt
 
+@csrf_exempt
 def CreateRoom(request):
 
     if request.method == 'POST':
@@ -18,8 +20,12 @@ def CreateRoom(request):
 
         return redirect('room', room_name=room, username=username)
 
-    return render(request, 'index.html')
-
+    get_rooms = Room.objects.all()
+    context = {
+        "rooms": get_rooms,
+    }
+    return render(request, 'chat.html', context)
+@csrf_exempt
 def MessageView(request, room_name, username):
 
     get_room = Room.objects.get(room_name=room_name)
@@ -39,4 +45,4 @@ def MessageView(request, room_name, username):
         "user": username,
         "room_name": room_name,
     }
-    return render(request, 'message.html', context)
+    return render(request, 'message.html', context=context)
