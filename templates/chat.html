@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Rooms</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+        /* Left sidebar for chat rooms */
+        .sidebar {
+            width: 30%;
+            background-color: #fff;
+            border-right: 1px solid #ccc;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .room {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+        .room:hover {
+            background-color: #f5f5f5;
+        }
+        /* Right content for "Create Room" */
+        .content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background-color: #fafafa;
+        }
+        .create-room {
+            text-align: center;
+            color: #666;
+            cursor: pointer;
+        }
+        .create-room img {
+            width: 100px;
+            height: 100px;
+        }
+        .create-room:hover {
+            color: #007BFF;
+        }
+        /* Modal styling */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+        }
+        .modal-content h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        .modal-content button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .modal-content button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Chat Rooms Sidebar -->
+        <div class="sidebar">
+            <h3>Available Rooms</h3>
+            <div id="rooms">
+                {% if rooms %}
+                    {% for i in rooms %}
+                    <div class="room" data-room-name="{{ i.room_name }}">
+                        <p style="color: #000;"> <strong>{{ i.room_name }}</strong></p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: #000;"> <strong>No room available</strong></p>
+                {% endif %}
+            </div>
+        </div>
+    
+        <!-- Right Content (Room Messages) -->
+        <div class="content" id="roomContent">
+            <div class="create-room" id="createRoomTrigger">
+                <img src="https://img.icons8.com/ios-glyphs/100/create-new.png" alt="Create Room">
+                <p>Click here to create or join a new room</p>
+            </div>
+        </div>
+    </div>
+    
+
+    <!-- Modal for creating room -->
+    <div class="modal" id="createRoomModal">
+        <div class="modal-content">
+            <h3>Create New Room</h3>
+            <form action="" method="POST">
+                {% csrf_token %}
+                <label for="">Username</label><br>
+                <input type="text" id="roomName" placeholder="Username" name="username" required><br>
+                <label for="">Room name</label><br>
+                <input type="text" id="username" placeholder="room name" name="room" required><br>
+                <center><button type="submit" id="submitRoom">Submit</button></center><br>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Modal functionality
+        const createRoomTrigger = document.getElementById('createRoomTrigger');
+        const createRoomModal = document.getElementById('createRoomModal');
+        const submitRoom = document.getElementById('submitRoom');
+        const roomsContainer = document.getElementById('rooms');
+
+        // Show modal on clicking "Create Room"
+        createRoomTrigger.addEventListener('click', () => {
+            createRoomModal.style.display = 'flex';
+        });
+
+        // Close and clear the modal after adding room
+        // submitRoom.addEventListener('click', () => {
+        //     document.getElementById('roomName').value  = '';
+        //     document.getElementById('username').value = '';
+
+        //     createRoomModal.style.display = 'none';
+        // });
+        document.querySelectorAll('.room').forEach(roomElement => {
+        roomElement.addEventListener('click', function() {
+            const roomName = this.getAttribute('data-room-name');
+            loadRoomMessages(roomName);  // Call function to load room messages
+            });
+        });
+
+        function loadRoomMessages(roomName) {
+            fetch(`/${roomName}/test/`) // URL should match your backend route
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('roomContent').innerHTML = data;
+                })
+                .catch(error => console.error('Error fetching room messages:', error));
+        }
+
+
+        // Close modal when clicking outside modal content
+        window.onclick = function(event) {
+            if (event.target == createRoomModal) {
+                createRoomModal.style.display = "none";
+            }
+        }
+    </script>
+
+</body>
+</html>
